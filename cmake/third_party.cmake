@@ -477,7 +477,7 @@ if(WITH_CINN)
 endif()
 
 if(WITH_CRYPTO)
-  include(external/cryptopp) # download, build, install cryptopp
+  include(external/cryptopp) # prepare submodule cryptopp
   list(APPEND third_party_deps extern_cryptopp)
   add_definitions(-DPADDLE_WITH_CRYPTO)
 endif()

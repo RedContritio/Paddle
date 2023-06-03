@@ -19,8 +19,10 @@ set(CRYPTOPP_INSTALL_DIR ${THIRD_PARTY_PATH}/install/cryptopp)
 set(CRYPTOPP_INCLUDE_DIR
     "${CRYPTOPP_INSTALL_DIR}/include"
     CACHE PATH "cryptopp include directory." FORCE)
-set(CRYPTOPP_REPOSITORY ${GIT_URL}/weidai11/cryptopp.git)
 set(CRYPTOPP_TAG CRYPTOPP_8_2_0)
+set(SOURCE_DIR ${PADDLE_SOURCE_DIR}/third_party/cryptopp)
+
+set(CRYPTOPP_CMAKE_DIR ${PADDLE_SOURCE_DIR}/third_party/cryptopp-cmake)
 
 if(WIN32)
   set(CRYPTOPP_LIBRARIES
@@ -33,7 +35,7 @@ if(WIN32)
   if("${CMAKE_GENERATOR}" STREQUAL "Ninja")
     set(CRYPTOPP_PATCH_COMMAND
         ${CMAKE_COMMAND} -E copy_if_different
-        "${PADDLE_SOURCE_DIR}/patches/cryptopp/CMakeLists.txt" "<SOURCE_DIR>/")
+        "${PADDLE_SOURCE_DIR}/patches/cryptopp/CMakeLists.txt" ${SOURCE_DIR})
   endif()
 else()
   set(CRYPTOPP_LIBRARIES
@@ -60,20 +62,20 @@ set(CRYPTOPP_CMAKE_ARGS
 
 include_directories(${CRYPTOPP_INCLUDE_DIR})
 
+# copy cmake file first before add external project
+file(COPY "${CRYPTOPP_CMAKE_DIR}/CMakeLists.txt" DESTINATION "${SOURCE_DIR}")
+file(COPY "${CRYPTOPP_CMAKE_DIR}/cryptopp-config.cmake"
+     DESTINATION "${SOURCE_DIR}")
+
 ExternalProject_Add(
   extern_cryptopp
   ${EXTERNAL_PROJECT_LOG_ARGS} ${SHALLOW_CLONE}
-  GIT_REPOSITORY ${CRYPTOPP_REPOSITORY}
-  GIT_TAG ${CRYPTOPP_TAG}
+  SOURCE_DIR ${SOURCE_DIR}
   PREFIX ${CRYPTOPP_PREFIX_DIR}
   UPDATE_COMMAND ""
   PATCH_COMMAND
-  COMMAND ${CMAKE_COMMAND} -E remove_directory "<SOURCE_DIR>/cmake/"
-  COMMAND git clone ${GIT_URL}/noloader/cryptopp-cmake "<SOURCE_DIR>/cmake"
-  COMMAND cd "<SOURCE_DIR>/cmake" && git checkout tags/${CRYPTOPP_TAG} -b
-          ${CRYPTOPP_TAG}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory "<SOURCE_DIR>/cmake/"
-          "<SOURCE_DIR>/"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${CRYPTOPP_CMAKE_DIR}/"
+          "${SOURCE_DIR}/"
   COMMAND ${CRYPTOPP_PATCH_COMMAND}
   INSTALL_DIR ${CRYPTOPP_INSTALL_DIR}
   CMAKE_ARGS ${CRYPTOPP_CMAKE_ARGS}
