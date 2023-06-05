@@ -72,10 +72,15 @@ ExternalProject_Add(
   ${EXTERNAL_PROJECT_LOG_ARGS} ${SHALLOW_CLONE}
   SOURCE_DIR ${SOURCE_DIR}
   PREFIX ${CRYPTOPP_PREFIX_DIR}
-  UPDATE_COMMAND ""
+  UPDATE_COMMAND # Well then, I must update first, or else it
+                 # is not a lawful cmake project, but a compileless nightmare.
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "${CRYPTOPP_CMAKE_DIR}/CMakeLists.txt" "${SOURCE_DIR}/CMakeLists.txt"
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_if_different
+    "${CRYPTOPP_CMAKE_DIR}/cryptopp-config.cmake"
+    "${SOURCE_DIR}/cryptopp-config.cmake"
   PATCH_COMMAND
-  COMMAND ${CMAKE_COMMAND} -E copy_directory "${CRYPTOPP_CMAKE_DIR}/"
-          "${SOURCE_DIR}/"
   COMMAND ${CRYPTOPP_PATCH_COMMAND}
   INSTALL_DIR ${CRYPTOPP_INSTALL_DIR}
   CMAKE_ARGS ${CRYPTOPP_CMAKE_ARGS}

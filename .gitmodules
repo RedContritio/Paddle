@@ -58,6 +58,10 @@
 	path = third_party/eigen3
 	url = https://gitlab.com/libeigen/eigen.git
 	ignore = dirty
+[submodule "third_party/pocketfft"]
+	path = third_party/pocketfft
+	url = https://gitlab.mpcdf.mpg.de/mtr/pocketfft.git
+	ignore = dirty
 [submodule "third_party/mkldnn"]
 	path = third_party/mkldnn
 	url = https://github.com/oneapi-src/oneDNN.git
