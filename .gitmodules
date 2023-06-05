@@ -62,6 +62,10 @@
 	path = third_party/pocketfft
 	url = https://gitlab.mpcdf.mpg.de/mtr/pocketfft.git
 	ignore = dirty
+[submodule "third_party/xbyak"]
+	path = third_party/xbyak
+	url = https://github.com/herumi/xbyak.git
+	ignore = dirty
 [submodule "third_party/mkldnn"]
 	path = third_party/mkldnn
 	url = https://github.com/oneapi-src/oneDNN.git
