@@ -23,9 +23,13 @@ if((NOT DEFINED PSLIB_BRPC_NAME) OR (NOT DEFINED PSLIB_BRPC_URL))
   set(PSLIB_BRPC_NAME
       "pslib_brpc"
       CACHE STRING "" FORCE)
+  set(PSLIB_BRPC_CACHE_FILENAME
+      "pslib_brpc.tar.gz"
+      CACHE STRING "" FORCE)
   set(PSLIB_BRPC_URL
       "https://pslib.bj.bcebos.com/pslib_brpc.tar.gz"
       CACHE STRING "" FORCE)
+  set(PSLIB_BRPC_URL_MD5 62BE105F10D9557474EAA40C84E8979D)
 endif()
 message(
   STATUS
@@ -45,6 +49,27 @@ set(PSLIB_BRPC_DOWNLOAD_DIR "${PADDLE_DOWLOAD_DIR}/third_party/pslib_brpc")
 
 include_directories(${PSLIB_BRPC_INC_DIR})
 
+function(download_pslib_brpc)
+  message(
+    STATUS
+      "Downloading ${PSLIB_BRPC_URL} to ${PSLIB_BRPC_DOWNLOAD_DIR}/${PSLIB_BRPC_CACHE_FILENAME}"
+  )
+  # NOTE: If the version is updated, consider emptying the folder; maybe add timeout
+  file(
+    DOWNLOAD ${PSLIB_BRPC_URL}
+    ${PSLIB_BRPC_DOWNLOAD_DIR}/${PSLIB_BRPC_CACHE_FILENAME}
+    EXPECTED_MD5 ${PSLIB_BRPC_URL_MD5}
+    STATUS ERR)
+  if(ERR EQUAL 0)
+    message(STATUS "Download ${PSLIB_BRPC_CACHE_FILENAME} success")
+  else()
+    message(
+      FATAL_ERROR
+        "Download failed, error: ${ERR}\n You can try downloading ${PSLIB_BRPC_CACHE_FILENAME} again"
+    )
+  endif()
+endfunction()
+
 file(
   WRITE ${PSLIB_BRPC_DOWNLOAD_DIR}/CMakeLists.txt
   "PROJECT(PSLIB_BRPC)\n" "cmake_minimum_required(VERSION 3.0)\n"
@@ -54,16 +79,12 @@ file(
 ExternalProject_Add(
   ${PSLIB_BRPC_PROJECT}
   ${EXTERNAL_PROJECT_LOG_ARGS}
+  URL ${PSLIB_BRPC_DOWNLOAD_DIR}/${PSLIB_BRPC_CACHE_FILENAME}
+  URL_MD5 ${PSLIB_BRPC_URL_MD5}
   PREFIX ${PSLIB_BRPC_PREFIX_DIR}
-  DOWNLOAD_DIR ${PSLIB_BRPC_DOWNLOAD_DIR}
-  DOWNLOAD_COMMAND
-  COMMAND
-    wget --no-check-certificate ${PSLIB_BRPC_URL} -c -q -O
-    ${PSLIB_BRPC_NAME}.tar.gz && tar zxvf ${PSLIB_BRPC_NAME}.tar.gz -C
-    ${PSLIB_BRPC_SOURCE_DIR}
-  COMMAND ${CMAKE_COMMAND} -E copy "${PSLIB_BRPC_DOWNLOAD_DIR}/CMakeLists.txt"
-          "${PSLIB_BRPC_SOURCE_DIR}"
   DOWNLOAD_NO_PROGRESS 1
+  DOWNLOAD_DIR ${PSLIB_BRPC_DOWNLOAD_DIR}
+  SOURCE_DIR ${PSLIB_BRPC_SOURCE_DIR}
   UPDATE_COMMAND ""
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PSLIB_BRPC_INSTALL_ROOT}
              -DCMAKE_BUILD_TYPE=${THIRD_PARTY_BUILD_TYPE}
